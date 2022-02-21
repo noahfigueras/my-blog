@@ -14,9 +14,13 @@
 
 /* Remove default margin */
 body,
-h1,
+h1 {
+	font-size: var(--fs-800);
+}
 h2,
-h3,
+h3 {
+	font-size: var(--fs-700);
+}
 h4,
 p,
 figure,
@@ -126,13 +130,13 @@ select {
 
 .grid {
     display: grid;
-    gap: var(--gap, 1rem);
+    gap: var(--gap, 2rem);
 }
 
 .container {
     padding-inline: 2em;
     margin-inline: auto;
-    max-width: 80rem;
+    max-width: 60rem;
 }
 
 .sr-only {
@@ -168,6 +172,7 @@ select {
 .letter-spacing-3 { letter-spacing: 2.35px; } 
 
 .uppercase { text-transform: uppercase; }
+.center { text-align: center;}
 
 .fs-900 { font-size: var(--fs-900); }
 .fs-800 { font-size: var(--fs-800); }
@@ -183,4 +188,17 @@ select {
 .fs-700,
 .fs-600 {
     line-height: 1.1;
+}
+
+.post-date {
+	font-size: var(--fs-700);
+}
+
+.all-posts {
+	margin: 2rem 0;	
+}
+
+.single-post {
+	border-bottom: dashed 1px hsl( var(--clr-light) );
+	margin: 0 auto;
 }
