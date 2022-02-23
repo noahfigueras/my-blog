@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useParams } from "react-router-dom";
 
 const Posts = ({list}) => {
 	
@@ -8,14 +9,19 @@ const Posts = ({list}) => {
 		posts.push(
 			<div className="single-post">
 				<span className="post-date text-accent">{post.date}</span>	
-				<h3><a href={post.title}>{post.title}</a></h3>
+				<h3><Link to={post.title}>{post.title}</Link></h3>
 			</div>
 		)
 	}
 	return posts;
 }
 
-const App = () => {
+const Post = () => {
+	const params = useParams();
+	return <h1> Post: {params.postId}</h1>;
+}
+
+const Home = () => {
 	const meta_posts = [
 		{
 			title: "All you need to know to pass the Comptia Security +",
@@ -37,4 +43,5 @@ const App = () => {
 	);
 }
 
-export default App;
+
+export {Home, Post};
