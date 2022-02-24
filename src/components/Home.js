@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useParams } from "react-router-dom";
+import Example from './example.mdx'
 
 const Posts = ({list}) => {
 	
@@ -18,7 +19,7 @@ const Posts = ({list}) => {
 
 const Post = () => {
 	const params = useParams();
-	return <h1> Post: {params.postId}</h1>;
+	return <Example title={params.postId}/>;
 }
 
 const Home = () => {
