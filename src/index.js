@@ -6,6 +6,7 @@ import {
 	  Route,
 } from "react-router-dom";
 import './index.css';
+import 'regenerator-runtime/runtime'
 import {Home, Post} from './components/Home';
 
 // Remove Strict Mode on production build, 

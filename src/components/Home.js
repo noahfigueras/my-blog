@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from "react-router-dom";
-import Example from './example.mdx'
+import * as runtime from 'react/jsx-runtime.js'
+import Example from './blog/example.mdx'
+import {evaluate} from '@mdx-js/mdx'
 
 const Posts = ({list}) => {
 	
@@ -19,17 +21,29 @@ const Posts = ({list}) => {
 
 const Post = () => {
 	const params = useParams();
-	return <Example title={params.postId}/>;
+	const [content, setContent] = useState(null);
+
+	useEffect(() => {
+		// Get Post
+		const post = async () => {
+			const response = await fetch("https://raw.githubusercontent.com/noahfigueras/my-blog/master/src/components/example.mdx");
+			const data = await response.text();
+			setContent(await evaluate(data, {...runtime}));
+		}
+		post();
+	}, []);
+
+	return content != null ? content.default() : null;
 }
 
 const Home = () => {
 	const meta_posts = [
 		{
-			title: "All you need to know to pass the Comptia Security +",
+			title: "post1",
 			date: "02/20/2022"
 		},
 		{
-			title: "Backpackig 4 days through the island of Maui - Hawaii",
+			title: "post2",
 			date: "02/18/2022"
 		}
 	];
