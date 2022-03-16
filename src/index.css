@@ -1,105 +1,12 @@
-
-/* ------------- */
-/* CSS RESET     */
-/* ------------- */
-
-/* Used from: https://piccalil.li/blog/a-modern-css-reset/ */
-
-/* Box sizing rules */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-/* Remove default margin */
-body,
-h1 {
-	font-size: var(--fs-800);
-}
-h2,
-h3 {
-	font-size: var(--fs-700);
-}
-h4,
-p,
-figure,
-blockquote,
-dl,
-dd {
-  margin: 0;
-}
-p {
-	font-weight: 400;
-}
-
-/* Remove list styles on ul, ol elements with a list role, which suggests default styling will be removed */
-ul[role='list'],
-ol[role='list'] {
-  list-style: none;
-}
-
-/* Set core root defaults */
-html:focus-within {
-  scroll-behavior: smooth;
-}
-
-/* Set core body defaults */
-body {
-  font-family: var(--f--sans-normal);
-  font-size: var(--fs-500);
-  color: hsl(var(--clr-white));
-  background-color: hsl(var(--clr-dark));
-  min-height: 100vh;
-  text-rendering: optimizeSpeed;
-  line-height: 1.5;
-}
-
-/* A elements that don't have a class get default styles */
-a:not([class]) {
-  text-decoration-skip-ink: auto;
-}
-
-/* Make images easier to work with */
-img,
-picture {
-  max-width: 100%;
-  display: block;
-}
-
-/* Inherit fonts for inputs and buttons */
-input,
-button,
-textarea,
-select {
-  font: inherit;
-}
-
-/* Remove all animations, transitions and smooth scroll for people that prefer not to see them */
-@media (prefers-reduced-motion: reduce) {
-  html:focus-within {
-   scroll-behavior: auto;
-  }
-  
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
 /* ------------------- */
 /* Custom properties   */
 /* ------------------- */
 
 :root {
     /* colors */
-    --clr-dark: 230 35% 7%;
-    --clr-light: 231 77% 90%;
-    --clr-white: 0 0% 100%;
+    --clr-dark: #1D3618;
+    --clr-light: #83F56C;
+    --clr-white: #F2CDB6;
     
     /* font-sizes */
     --fs-900: clamp(5rem, 8vw + 1rem, 9.375rem);
@@ -115,6 +22,23 @@ select {
     --ff-serif: "Bellefair", serif;
     --ff-sans-cond: "Barlow Condensed", sans-serif;
     --ff-sans-normal: "Barlow", sans-serif;
+}
+
+/* --------------------*/
+/* Initial Setup       */
+/* --------------------*/
+
+/* Set core body defaults */
+body {
+  font-family: var(--f--sans-normal);
+  font-size: var(--fs-500);
+  min-height: 100vh;
+  text-rendering: optimizeSpeed;
+  line-height: 1.5;
+}
+
+hr {
+	border-top: 5px dotted;
 }
 
 /* --------------------*/
@@ -153,13 +77,14 @@ select {
 
 /* colors */
 
-.bg-dark { background-color: hsl( var(--clr-dark) );}
-.bg-accent { background-color: hsl( var(--clr-light) );}
-.bg-white { background-color: hsl( var(--clr-white) );}
+.bg-black { background-color: black;}
+.bg-dark { background-color: var(--clr-dark);}
+.bg-accent { background-color: var(--clr-light);}
+.bg-white { background-color: var(--clr-white);}
 
-.text-dark { color: hsl( var(--clr-dark) );}
-.text-accent { color: hsl( var(--clr-light) );}
-.text-white { color: hsl( var(--clr-white) );}
+.text-dark { color: var(--clr-dark);}
+.text-accent { color: var(--clr-light) ;}
+.text-white { color: var(--clr-white) ;}
 
 /* typography */
 
@@ -199,6 +124,6 @@ select {
 }
 
 .single-post {
-	border-bottom: dashed 1px hsl( var(--clr-light) );
-	margin: 0 auto;
+	padding: 20px;
+	margin: 20px;
 }

@@ -29,8 +29,8 @@ const Posts = ({list}) => {
 					const title = await getTitle(post.name);
 					const element = (
 						<div className="single-post">
-							<span className="post-date text-accent">{date}</span>	
-							<h3><Link to={post.name}>{title}</Link></h3>
+							<span className="post-date">{date}</span>	
+							<h1><Link to={post.name}>{title}</Link></h1>
 						</div>
 						);
 					setPosts(oldArray => [...oldArray, element]);
@@ -75,9 +75,12 @@ const Home = () => {
 
 	return (
 	<div className="container">
-			<h1 className="center"> Noah Figueras's Website </h1>
-			<hr/>
-			<div className="all-posts grid">
+		<header>
+			<h1 className="center"> Noah Figueras </h1>
+			<p className="center fs-700"> I surf, hack and travel </p>
+			<hr />
+		</header>
+			<div className="all-posts grid ">
 				{posts != null &&
 					<Posts list={posts}/>	
 				}
