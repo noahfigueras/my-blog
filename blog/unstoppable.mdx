@@ -1,0 +1,29 @@
+# Challenge #1 - Unstoppable
+ There's a lending pool with a million DVT tokens in balance, offering flash loans for free.
+
+ If only there was a way to attack and stop the pool from offering flash loans ...
+
+ You start with 100 DVT tokens in balance.
+
+# Exploit 
+In this challenge, the ``UnstoppableLender.sol`` smart contract has a vulnerability that 
+we can exploit in order to stop the free flashloans.  
+
+The smart contract uses a variable to keep track of the balance of the pool called 
+``poolBalance``. This variable is updated every time the ``depositTokens()`` is executed 
+trying to keep track of the pool dvt tokens balance. But, there's only one problem and it's 
+that we can use the dvt token transfer function to transfer dvt tokens to the smart contract 
+and that ``poolBalance`` variable will not update.  
+
+Knowing that, in the ``flashloan()`` I see that it checks for any discrepancies in the ``poolBalance`` 
+variable and the real balance of the address of the tokens in: ``assert(poolBalance == balanceBefore)``.  
+So, updating the balance of dvt tokens of the smart contract address without updating ``poolBalance`` variable 
+will cause the ``flashloan()`` to stop issuing free loans.
+
+```js
+	it('Exploit', async function () {
+        /** CODE YOUR EXPLOIT HERE */
+         // Show it's possible for someUser to take out a flash loan
+		 await this.token.connect(attacker).transfer(this.pool.address, INITIAL_ATTACKER_TOKEN_BALANCE);
+	});
+```

