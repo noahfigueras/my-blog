@@ -30,7 +30,7 @@ const Posts = ({list}) => {
 					const element = (
 						<div className="single-post">
 							<span className="post-date">{date}</span>	
-							<h1><Link to={post.name}>{title}</Link></h1>
+							<h3><Link to={post.name}>{title}</Link></h3>
 						</div>
 						);
 					setPosts(oldArray => [...oldArray, element]);
