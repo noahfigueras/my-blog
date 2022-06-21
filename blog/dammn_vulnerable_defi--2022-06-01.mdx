@@ -1,0 +1,55 @@
+# $ Damn Vulnerable DeFi - All Writeups
+Damn Vulnerable DeFi is the wargame to learn offensive security of DeFi smart contracts.
+Throughout numerous challenges you will build the skills to become a bug hunter or security auditor in the space.  
+
+This are writeups of my own solutions of all the challenges posted up to date. My solutions might not be the best 
+implementations but all of them show proof of the exploitable techniques.  
+
+I'll encourage everyone to give a good try to all the challenges before taking a peak at the following solutions.  
+
+## Challenges
+1. [Unstoppable](#unstoppable)
+2. [Naive Reciever](#naive_reciever)
+3. [Truster](#truster)
+4. [Side Entrance](#side_entrance)
+5. [The Rewarder](#the_rewarder)
+6. [Selfie](#selfie)
+7. [Compromised](#compromised)
+8. [Puppet](#puppet)
+9. [Puppet v2](#puppet_v2)
+10. [Free Rider](#free_rider)
+11. [Backdoor](#backdoor)
+12. [Climber](#climber)
+13. [Junior miners](#junior_miners)
+
+
+## Challenge #1 - Unstoppable  <a name="unstoppable"></a>  
+ There's a lending pool with a million DVT tokens in balance, offering flash loans for free.
+
+ If only there was a way to attack and stop the pool from offering flash loans ...
+
+ You start with 100 DVT tokens in balance.
+
+## Exploit 
+In this challenge, the ``UnstoppableLender.sol`` smart contract has a vulnerability that 
+we can exploit in order to stop the free flashloans.  
+
+The smart contract uses a variable to keep track of the balance of the pool called 
+``poolBalance``. This variable is updated every time the ``depositTokens()`` is executed 
+trying to keep track of the pool dvt tokens balance. But, there's only one problem and it's 
+that we can use the dvt token transfer function to transfer dvt tokens to the smart contract 
+and that ``poolBalance`` variable will not update.  
+
+Knowing that, in the ``flashloan()`` I see that it checks for any discrepancies in the ``poolBalance`` 
+variable and the real balance of the address of the tokens in: ``assert(poolBalance == balanceBefore)``.  
+So, updating the balance of dvt tokens of the smart contract address without updating ``poolBalance`` variable 
+will cause the ``flashloan()`` to stop issuing free loans.
+
+```js
+	it('Exploit', async function () {
+        /** CODE YOUR EXPLOIT HERE */
+         // Show it's possible for someUser to take out a flash loan
+		 await this.token.connect(attacker).transfer(this.pool.address, INITIAL_ATTACKER_TOKEN_BALANCE);
+	});
+```
+
