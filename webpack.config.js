@@ -31,7 +31,11 @@ module.exports = {
 					options: {}
 				  }
 				]
-			  }
+			  },
+			{
+				test: /\.png/,
+				type: 'asset/resource'
+		    }
 		]
 	},
 	mode: 'development',

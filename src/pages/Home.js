@@ -3,6 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import * as runtime from 'react/jsx-runtime.js'
 import {evaluate} from '@mdx-js/mdx'
 
+import Header from '../components/header/Header';
+
 const Posts = ({list}) => {
 	const [posts, setPosts] = useState([]);
 
@@ -75,16 +77,12 @@ const Home = () => {
 
 	return (
 	<div className="container">
-		<header>
-			<h1 className="center"> Noah Figueras </h1>
-			<p className="center fs-700"> I surf, hack and travel </p>
-			<hr />
-		</header>
-			<div className="all-posts grid ">
-				{posts != null &&
-					<Posts list={posts}/>	
-				}
-			</div>
+		<Header/>
+		<div className="all-posts grid ">
+			{posts != null &&
+				<Posts list={posts}/>	
+			}
+		</div>
 	</div>
 	);
 }

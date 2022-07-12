@@ -8,7 +8,9 @@ import {
 import './css/retro.css';
 import './css/index.css';
 import 'regenerator-runtime/runtime'
-import {Home, Post} from './components/Home';
+
+import {Home} from './pages/Home';
+import Projects from './pages/Projects';
 
 // Remove Strict Mode on production build, 
 // tool for highliting potential problems in an application.
@@ -18,9 +20,11 @@ ReactDOM.render(
 		<BrowserRouter>
 			<Routes>
 				<Route path="/" element={<Home />}/>
-				<Route path=":postId" element={<Post />} />
+				<Route path="/projects" element={<Projects />}/>
 			</Routes>
 	  </BrowserRouter>
 	</React.StrictMode>,
 	document.getElementById('root')
 );
+
+// <Route path=":postId" element={<Post />} />

@@ -1,0 +1,18 @@
+.project {
+	margin: 20px;
+	display: flex;
+}
+
+img {
+	width: 200px;
+	height: 200px;	
+}
+
+a {
+	text-decoration: none;
+}
+
+a > p {
+	color: white;
+}
+
