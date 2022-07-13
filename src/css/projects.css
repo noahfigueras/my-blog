@@ -3,16 +3,16 @@
 	display: flex;
 }
 
-img {
+.project img {
 	width: 200px;
 	height: 200px;	
 }
 
-a {
+.project a {
 	text-decoration: none;
 }
 
-a > p {
+.project a p {
 	color: white;
 }
 
