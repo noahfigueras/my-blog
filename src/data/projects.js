@@ -1,4 +1,4 @@
-import logo from '../../public/assets/bandsintown.png';
+import logo from '../assets/bandsintown.png';
 
 export const projectsData = [
 	{

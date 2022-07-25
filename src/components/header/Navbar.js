@@ -22,6 +22,7 @@ const Navbar = () => {
 			<ul id="navbar">
 				<li><Link to="/">Home</Link></li>
 				<li><Link to="/projects">Projects</Link></li>
+				<li><Link to="/travels">Travels</Link></li>
 			</ul>
 		</div>
 	);
