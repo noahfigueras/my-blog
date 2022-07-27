@@ -4,7 +4,8 @@ module.exports = {
 	entry: ["regenerator-runtime/runtime.js",'./src/index.js'],
 	output: {
 		filename: 'bundle.js', 
-		path: path.join(__dirname, 'public')
+		path: path.join(__dirname, 'public'),
+		publicPath: '/'
 	},
 	module: {
 		rules: [
@@ -22,21 +23,24 @@ module.exports = {
 				test: /\.css$/i, 
 				use: ['style-loader', 'css-loader']
 			},
-			  {
+			{
 				test: /\.mdx?$/,
 				use: [
-				  {
-					loader: '@mdx-js/loader',
-					/** @type {import('@mdx-js/loader').Options} */
-					options: {}
-				  }
+					{
+						loader: '@mdx-js/loader',
+						/** @type {import('@mdx-js/loader').Options} */
+						options: {}
+					}
 				]
-			  },
+			},
 			{
 				test: /\.(png|svg|jpg|jpeg|gif)$/i,
 				type: 'asset/resource'
-		    }
+			}
 		]
+	},
+	devServer: {
+		historyApiFallback: true,
 	},
 	mode: 'development',
 	resolve: {
