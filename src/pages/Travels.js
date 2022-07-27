@@ -1,13 +1,34 @@
 import React from 'react';
-import Map from '../assets/054World_map_dot_B.svg';
 import Header from '../components/header/Header';
+import Map from '../components/Map';
 
 const Travels = () => {
+	const visitedCountries = [
+		"usa",
+		"mexico",
+		"spain",
+		"finland",
+		"oahu",
+		"kauai",
+		"kahului",
+		"morocco",
+		"italy",
+		"france",
+		"switzerland",
+		"czech",
+		"burma",
+		"thailand",
+		"germany",
+		"belgium",
+		"netherlands",
+		"gran canaria"
+	];
+
 	return(
 	<div className="container">
 		<Header/>
 		<div id="map">
-			<img src={Map} alt="Dotted World Map"/>
+			<Map countries={visitedCountries}/>
 		</div>
 	</div>
 	);
