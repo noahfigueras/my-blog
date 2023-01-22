@@ -21,7 +21,8 @@ const Travels = () => {
 		"germany",
 		"belgium",
 		"netherlands",
-		"gran canaria"
+    "gran canaria",
+    "portugal"
 	];
 
 	return(
